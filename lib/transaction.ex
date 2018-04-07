@@ -12,4 +12,9 @@ defmodule Transaction do
       signature: Key.get_signed_data(transaction_list)
     }
   end
+
+  def validate_transaction(transaction) do
+    transaction_list = [transaction.from_public_key,transaction.to_public_key,transaction.amount]
+    :crypto.verify(:ecdsa, :sha256, transaction_list, transaction.signature, [Key.get_public_key(), :secp256k1])
+  end
 end
