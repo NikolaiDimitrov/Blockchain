@@ -14,8 +14,18 @@ defmodule Transaction do
   end
 
   def validate_transaction(transaction) do
-    transaction_list = [transaction.from_public_key,transaction.to_public_key,transaction.amount]
-    :crypto.verify(:ecdsa, :sha256, :erlang.term_to_binary(transaction_list), transaction.signature,
-     [Key.get_public_key(), :secp256k1])
+    transaction_list = [
+      transaction.from_public_key,
+      transaction.to_public_key,
+      transaction.amount
+    ]
+
+    :crypto.verify(
+      :ecdsa,
+      :sha256,
+      :erlang.term_to_binary(transaction_list),
+      transaction.signature,
+      [Key.get_public_key(), :secp256k1]
+    )
   end
 end

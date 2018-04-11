@@ -27,18 +27,19 @@ defmodule Pool do
   end
 
   def get_transactions do
-    GenServer.call(__MODULE__,:get_transactions)
+    GenServer.call(__MODULE__, :get_transactions)
   end
 
-  def handle_call({:add_transaction,tx}, _from, state) do
+  def handle_call({:add_transaction, tx}, _from, state) do
     new_state = [tx | state]
     {:reply, :ok, new_state}
   end
-  def handle_call(:remove_transaction,_from,_state) do
-    {:reply,:ok,[]}
-  end
-  def handle_call(:get_transactions,_from,state) do
-    {:reply, state, state}
+
+  def handle_call(:remove_transactions, _from, _state) do
+    {:reply, :ok, []}
   end
 
+  def handle_call(:get_transactions, _from, state) do
+    {:reply, state, state}
+  end
 end
