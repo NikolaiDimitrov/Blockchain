@@ -1,8 +1,10 @@
-defmodule Pool do
+defmodule Blockchain.Pool.Worker do
   use GenServer
 
-  def start_link do
-    GenServer.start_link(__MODULE__, [], [{:name, __MODULE__}])
+  alias Blockchain.Transaction.Transaction, as: Transaction
+
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init(state) do
@@ -18,8 +20,8 @@ defmodule Pool do
     end
   end
 
-  def make_payment(key, amount) do
-    add_transaction(Transaction.get_new_transaction(key, amount))
+  def make_payment(from_key, to_key, amount) do
+    add_transaction(Transaction.get_new_transaction(from_key, to_key, amount))
   end
 
   def remove_transactions do

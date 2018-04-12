@@ -1,10 +1,15 @@
-defmodule Chain do
+defmodule Blockchain.Chain.Worker do
   use GenServer
+
+  alias Blockchain.Transaction.Transaction
+  alias Blockchain.Block.Block
+  alias Blockchain.Key.Key
+  alias Blockchain.Pool.Worker, as: Pool
 
   @difficulty <<0, 63, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
                 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255>>
   @coinbase 1
-  def start_link do
+  def start_link(_) do
     block = %Block{
       previous_hash: nil,
       difficulty: 0,
@@ -15,7 +20,7 @@ defmodule Chain do
     }
 
     new_state = [block]
-    GenServer.start_link(__MODULE__, new_state, [{:name, __MODULE__}])
+    GenServer.start_link(__MODULE__, new_state, name: __MODULE__)
   end
 
   def init(state) do

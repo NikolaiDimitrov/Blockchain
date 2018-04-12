@@ -1,18 +1,14 @@
 defmodule Blockchain do
-  @moduledoc """
-  Documentation for Blockchain.
-  """
+  use Application
+  import Supervisor.Spec
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children = [
+      Blockchain.Chain.Worker.Supervisor,
+      Blockchain.Miners.Worker.Supervisor,
+      Blockchain.Pool.Worker.Supervisor
+    ]
 
-  ## Examples
-
-      iex> Blockchain.hello
-      :world
-
-  """
-  def hello do
-    :world
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end
