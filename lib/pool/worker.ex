@@ -24,11 +24,11 @@ defmodule Blockchain.Pool.Worker do
     add_transaction(Transaction.get_new_transaction(from_key, to_key, amount))
   end
 
-  def remove_transactions do
-    GenServer.call(__MODULE__, :remove_transactions)
+  def remove_transactions(transaction) do
+    GenServer.call(__MODULE__, {:remove_transactions, transaction})
   end
 
-  def get_transactions do
+  def get_transactions() do
     GenServer.call(__MODULE__, :get_transactions)
   end
 
@@ -37,8 +37,9 @@ defmodule Blockchain.Pool.Worker do
     {:reply, :ok, new_state}
   end
 
-  def handle_call(:remove_transactions, _from, _state) do
-    {:reply, :ok, []}
+  def handle_call({:remove_transactions, transaction}, _from, state) do
+    new_state = List.delete(state, transaction)
+    {:reply, :ok, new_state}
   end
 
   def handle_call(:get_transactions, _from, state) do

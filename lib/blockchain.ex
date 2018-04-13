@@ -5,7 +5,6 @@ defmodule Blockchain do
   def start(_type, _args) do
     children = [
       Blockchain.Chain.Worker.Supervisor,
-      Blockchain.Miners.Worker.Supervisor,
       Blockchain.Pool.Worker.Supervisor
     ]
 

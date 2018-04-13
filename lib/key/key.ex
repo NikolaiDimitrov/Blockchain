@@ -6,6 +6,11 @@ defmodule Blockchain.Key.Key do
     public_key
   end
 
+  def make_public_key(private_key) do
+    {public_key, _} = :crypto.generate_key(:ecdh, :secp256k1, private_key)
+    public_key
+  end
+
   def get_signed_data(transaction_list) do
     :crypto.sign(:ecdsa, :sha256, :erlang.term_to_binary(transaction_list), [
       @private_key,

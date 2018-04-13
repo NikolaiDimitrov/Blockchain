@@ -6,8 +6,6 @@
                         'Elixir.Blockchain.Chain.Worker.Supervisor',
                         'Elixir.Blockchain.Chainstate.Chainstate',
                         'Elixir.Blockchain.Key.Key',
-                        'Elixir.Blockchain.Miners.Worker',
-                        'Elixir.Blockchain.Miners.Worker.Supervisor',
                         'Elixir.Blockchain.Pool.Worker',
                         'Elixir.Blockchain.Pool.Worker.Supervisor',
                         'Elixir.Blockchain.Transaction.Transaction']},
