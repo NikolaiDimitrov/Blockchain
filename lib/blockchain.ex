@@ -1,6 +1,5 @@
 defmodule Blockchain do
   use Application
-  import Supervisor.Spec
 
   def start(_type, _args) do
     children = [

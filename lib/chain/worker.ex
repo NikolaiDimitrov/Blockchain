@@ -1,5 +1,6 @@
 defmodule Blockchain.Chain.Worker do
   use GenServer
+  use Bitwise
 
   alias Blockchain.Transaction.Transaction
   alias Blockchain.Block.Block
@@ -7,8 +8,8 @@ defmodule Blockchain.Chain.Worker do
   alias Blockchain.Pool.Worker, as: Pool
   alias Blockchain.Chainstate.Chainstate
 
-  @difficulty <<0, 63, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-                255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255>>
+  @difficulty <<255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255>>
   @acc1_private_key <<46, 184, 100, 190, 87, 62, 77, 146, 237, 139, 78, 171, 207, 115, 254, 230>>
   @acc2_private_key <<24, 151, 126, 33, 62, 159, 21, 72, 114, 188, 199, 232, 126, 170, 56, 164>>
   @acc3_private_key <<83, 177, 121, 203, 209, 7, 115, 228, 136, 223, 95, 146, 125, 55, 97, 246>>
@@ -101,17 +102,20 @@ defmodule Blockchain.Chain.Worker do
       end)
 
     #  Pool.remove_transactions()
-    #  transaction_hash = calculate_transaction_hash(list)
+    transaction_hash = calculate_root_hash(validated_transactions)
+    chain_state_hash = calculate_root_hash(get_acc())
+
     block = %Block{
       previous_hash: prev_hash,
-      difficulty: 10,
+      difficulty: 15,
       nonce: 0,
-      chain_state_root_hash: nil,
-      transaction_root_hash: nil,
+      chain_state_root_hash: chain_state_hash,
+      transaction_root_hash: transaction_hash,
       transaction_list: validated_transactions
     }
 
-    nonce = find_nonce(block)
+    <<difficulty::256>> = @difficulty
+    nonce = find_nonce(block, difficulty)
     new_block = %{block | nonce: nonce}
     add_block(new_block)
   end
@@ -124,7 +128,7 @@ defmodule Blockchain.Chain.Worker do
     GenServer.call(__MODULE__, :get_blocks)
   end
 
-  def calculate_transaction_hash(transactions) do
+  def calculate_root_hash(transactions) do
     transactions
     |> build_merkle_tree()
     |> :gb_merkle_trees.root_hash()
@@ -143,20 +147,22 @@ defmodule Blockchain.Chain.Worker do
     Enum.find(get_acc(), default, fn p -> p.public_key == public_key end).balance
   end
 
-  def find_nonce(block) do
+  def find_nonce(block, difficulty) do
     block_bin = :erlang.term_to_binary(block)
     block_hash = :crypto.hash(:sha256, block_bin)
-    find_nonce(block_hash, block)
+    difficulty = difficulty >>> block.difficulty
+    difficulty = <<difficulty::256>>
+    find_nonce(block_hash, block, difficulty)
   end
 
-  def find_nonce(hash, block) when @difficulty < hash do
+  def find_nonce(hash, block, difficulty) when difficulty < hash do
     block = %{block | nonce: block.nonce + 1}
     block_bin = :erlang.term_to_binary(block)
     block_hash = :crypto.hash(:sha256, block_bin)
-    find_nonce(block_hash, block)
+    find_nonce(block_hash, block, difficulty)
   end
 
-  def find_nonce(_hash, block) do
+  def find_nonce(_hash, block, _difficulty) do
     block.nonce
   end
 end
